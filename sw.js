@@ -1,7 +1,7 @@
 // 4011 Model Hesaplama - Service Worker
 // Uygulamayı internetsiz (offline) kullanılabilir yapmak için basit cache-first stratejisi
 
-const CACHE_NAME = '4011-model-cache-v1';
+const CACHE_NAME = '4011-model-cache-v2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -37,9 +37,30 @@ self.addEventListener('activate', function(event) {
   );
 });
 
-// İstekleri karşılama: önce cache, yoksa ağdan al ve cache'e ekle
+// İstekleri karşılama:
+// - Sayfa (HTML/navigasyon) istekleri: ÖNCE AĞ, olmazsa cache (her zaman güncel kalsın)
+// - Diğer statik dosyalar (ikon, manifest vs.): önce cache, yoksa ağdan al
 self.addEventListener('fetch', function(event) {
   if (event.request.method !== 'GET') return;
+
+  const isNavigation = event.request.mode === 'navigate' ||
+    (event.request.destination === 'document');
+
+  if (isNavigation) {
+    event.respondWith(
+      fetch(event.request).then(function(networkResponse) {
+        return caches.open(CACHE_NAME).then(function(cache) {
+          cache.put(event.request, networkResponse.clone());
+          return networkResponse;
+        });
+      }).catch(function() {
+        return caches.match(event.request).then(function(cached) {
+          return cached || caches.match('./index.html');
+        });
+      })
+    );
+    return;
+  }
 
   event.respondWith(
     caches.match(event.request).then(function(cachedResponse) {
@@ -51,11 +72,6 @@ self.addEventListener('fetch', function(event) {
           cache.put(event.request, networkResponse.clone());
           return networkResponse;
         });
-      }).catch(function() {
-        // Ağ da yoksa ve sayfa isteniyorsa, ana sayfayı döndür
-        if (event.request.mode === 'navigate') {
-          return caches.match('./index.html');
-        }
       });
     })
   );
