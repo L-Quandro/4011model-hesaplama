@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>4011 Model Hesaplama</title>
+
+    <!-- PWA temel ayarları -->
+    <meta name="description" content="Tren makinistleri için zaman farkı ve saat toplama hesaplama aracı (4011 Model)">
+    <meta name="theme-color" content="#0f2027">
+    <link rel="manifest" href="manifest.json">
+
+    <!-- iOS (Safari) PWA desteği -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="4011 Model">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+    <!-- İkonlar -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        html, body {
+            height: 100%;
+            overscroll-behavior: none;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            min-height: 100dvh;
+            padding: 10px;
+            padding-top: max(10px, env(safe-area-inset-top));
+            padding-bottom: max(10px, env(safe-area-inset-bottom));
+            padding-left: max(10px, env(safe-area-inset-left));
+            padding-right: max(10px, env(safe-area-inset-right));
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.96);
+            width: 100%;
+            max-width: 420px;
+            border-radius: 24px;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
+            padding: 18px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #FF6B6B, #FF8E53, #11998e, #7F00FF);
+        }
+
+        /* SEKME/TAB BUTONLARI TASARIMI */
+        .tab-container {
+            display: flex;
+            background: #e2e8f0;
+            padding: 4px;
+            border-radius: 14px;
+            margin-bottom: 18px;
+            gap: 4px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px 6px;
+            border: none;
+            background: transparent;
+            font-size: 13px;
+            font-weight: 700;
+            color: #64748b;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .tab-btn.active {
+            background: #ffffff;
+            color: #0f172a;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+        }
+
+        /* İÇERİK ALANLARI */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* --- ARAÇ 1 (SÜRE / FARK HESAPLAMA) STİLLERİ --- */
+        .form-section {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 12px;
+            margin-bottom: 14px;
+        }
+
+        .label-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #2e7d32;
+        }
+
+        .btn-now {
+            background: none;
+            border: none;
+            color: #2e7d32;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .inputs-flex {
+            display: flex;
+            gap: 8px;
+        }
+
+        input[type="date"] {
+            flex: 1.2;
+            padding: 10px 8px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+            background: #fff;
+            min-width: 0;
+        }
+
+        .time-display-btn {
+            flex: 0.8;
+            padding: 10px 8px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            background: #fff;
+            color: #333;
+            text-align: center;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 0;
+        }
+
+        .btn-calc-diff {
+            width: 100%;
+            background: linear-gradient(135deg, #2e7d32, #4caf50);
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 700;
+            border-radius: 14px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+        }
+
+        .result-box-diff {
+            margin-top: 16px;
+            padding: 14px;
+            background-color: #f0fdf4;
+            border-radius: 14px;
+            border: 1px solid #bbf7d0;
+            display: none;
+        }
+
+        .result-main {
+            font-size: 18px;
+            font-weight: 800;
+            color: #166534;
+            margin-bottom: 6px;
+        }
+
+        .result-detail {
+            font-size: 13px;
+            color: #374151;
+            line-height: 1.5;
+        }
+
+        /* --- ARAÇ 2 (ÇOKLU SAAT TOPLAMA) STİLLERİ --- */
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 14px;
+            width: 100%;
+        }
+
+        .field {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .field label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #4a5568;
+            margin-bottom: 6px;
+        }
+
+        .field input {
+            width: 100%;
+            padding: 12px 8px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            outline: none;
+            text-align: center;
+            transition: all 0.2s ease;
+            background: #f8fafc;
+        }
+
+        .field input:focus {
+            border-color: #7F00FF;
+            background: #fff;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .btn-sum {
+            flex: 1;
+            padding: 12px 8px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, #FF8E53, #FF6B6B);
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-calc-sum {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            box-shadow: 0 4px 12px rgba(56, 239, 125, 0.3);
+        }
+
+        .list-section {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 10px;
+            max-height: 160px;
+            overflow-y: auto;
+            margin-bottom: 14px;
+        }
+
+        .list-header {
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748b;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-clear {
+            background: none;
+            border: none;
+            color: #ef4444;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .time-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #ffffff;
+            padding: 8px 10px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            border: 1px solid #edf2f7;
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .time-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .btn-delete {
+            background: #fee2e2;
+            color: #991b1b;
+            border: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            flex-shrink: 0;
+        }
+
+        .result-box-sum {
+            background: linear-gradient(135deg, #7F00FF, #E100FF);
+            padding: 14px;
+            border-radius: 14px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(127, 0, 255, 0.25);
+            display: none;
+        }
+
+        .result-title {
+            font-size: 11px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            opacity: 0.9;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .result-value {
+            font-size: 20px;
+            font-weight: 800;
+            word-break: break-word;
+        }
+
+        .empty-msg {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 12px;
+            padding: 12px 0;
+        }
+
+        /* --- ŞEFFAF İMZA (FOOTER) STİLİ --- */
+        .footer-signature {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748b;
+            opacity: 0.4;
+            letter-spacing: 0.5px;
+        }
+
+        /* --- MODAL (ANALOG SAAT) STİLLERİ --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .clock-modal {
+            background: #2b2b2b;
+            color: #fff;
+            width: 310px;
+            border-radius: 24px;
+            padding: 18px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .clock-header {
+            font-size: 38px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .clock-header span {
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 6px;
+        }
+
+        .clock-header span.active {
+            color: #cddc39;
+            background: #3a3a3a;
+        }
+
+        .clock-dial {
+            position: relative;
+            width: 230px;
+            height: 230px;
+            background: #383838;
+            border-radius: 50%;
+            margin-bottom: 12px;
+        }
+
+        .clock-center {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 8px; height: 8px;
+            background: #cddc39;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 5;
+        }
+
+        .clock-hand {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 2px;
+            background: #cddc39;
+            transform-origin: top center;
+            z-index: 4;
+            transition: transform 0.15s ease, height 0.15s ease;
+        }
+
+        .clock-hand::after {
+            content: '';
+            position: absolute;
+            bottom: -14px; left: -13px;
+            width: 28px; height: 28px;
+            background: rgba(205, 220, 57, 0.4);
+            border: 2px solid #cddc39;
+            border-radius: 50%;
+        }
+
+        .clock-number {
+            position: absolute;
+            width: 30px; height: 30px;
+            line-height: 30px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: #e0e0e0;
+            cursor: pointer;
+            border-radius: 50%;
+            z-index: 6;
+        }
+
+        .min-adjuster {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .min-btn {
+            background: #3a3a3a;
+            color: #cddc39;
+            border: 1px solid #555;
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .clock-actions {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        .clock-btn {
+            background: none;
+            border: none;
+            color: #cddc39;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 6px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <!-- ÜST SEKME GEÇİŞ BUTONLARI -->
+    <div class="tab-container">
+        <button class="tab-btn active" onclick="switchTab('tab-diff', this)">⏳ İki Zaman Arası Fark</button>
+        <button class="tab-btn" onclick="switchTab('tab-sum', this)">➕ Saat Toplama</button>
+    </div>
+
+    <!-- TAB 1: SÜRE / FARK HESAPLAMA -->
+    <div id="tab-diff" class="tab-content active">
+        <!-- BAŞLANGIÇ -->
+        <div class="form-section">
+            <div class="label-row">
+                <label>Başlangıç Zamanı</label>
+                <button class="btn-now" onclick="setNow('start')">Şimdi</button>
+            </div>
+            <div class="inputs-flex">
+                <input type="date" id="startDate">
+                <div class="time-display-btn" id="startTimeBtn" onclick="openClockPicker('start')">09:00</div>
+            </div>
+        </div>
+
+        <!-- BİTİŞ -->
+        <div class="form-section">
+            <div class="label-row">
+                <label>Bitiş Zamanı</label>
+                <button class="btn-now" onclick="setNow('end')">Şimdi</button>
+            </div>
+            <div class="inputs-flex">
+                <input type="date" id="endDate">
+                <div class="time-display-btn" id="endTimeBtn" onclick="openClockPicker('end')">09:00</div>
+            </div>
+        </div>
+
+        <button class="btn-calc-diff" onclick="calculateDuration()">Hesapla</button>
+
+        <div class="result-box-diff" id="resultBoxDiff">
+            <div style="font-size: 11px; color: #15803d; font-weight:700; margin-bottom:4px;">GEÇEN SÜRE</div>
+            <div class="result-main" id="primaryResult">-</div>
+            <div class="result-detail" id="secondaryResult"></div>
+        </div>
+    </div>
+
+    <!-- TAB 2: ÇOKLU SAAT TOPLAMA -->
+    <div id="tab-sum" class="tab-content">
+        <div class="input-group">
+            <div class="field">
+                <label for="hoursInput">Saat</label>
+                <input type="number" id="hoursInput" min="0" placeholder="0">
+            </div>
+            <div class="field">
+                <label for="minutesInput">Dakika</label>
+                <input type="number" id="minutesInput" min="0" max="59" placeholder="0">
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn-sum btn-add" onclick="addTime()">➕ Ekle</button>
+            <button class="btn-sum btn-calc-sum" onclick="calculateTotal()">🧮 Topla</button>
+        </div>
+
+        <div class="list-section">
+            <div class="list-header">
+                <span>EKLENEN SÜRELER (<span id="countDisplay">0</span>)</span>
+                <button class="btn-clear" onclick="clearAll()">Listeyi Temizle</button>
+            </div>
+            <div id="timeList">
+                <div class="empty-msg" id="emptyMsg">Henüz süre eklenmedi.</div>
+            </div>
+        </div>
+
+        <div class="result-box-sum" id="resultBoxSum">
+            <div class="result-title">TOPLAM SÜRE</div>
+            <div class="result-value" id="resultDisplay">0 saat 0 dakika</div>
+        </div>
+    </div>
+
+    <!-- HAFİF ŞEFFAF İMZA -->
+    <div class="footer-signature">
+        Powered by Furkan NABİT
+    </div>
+</div>
+
+<!-- ANALOG SAAT MODAL -->
+<div class="modal-overlay" id="clockModal">
+    <div class="clock-modal">
+        <div class="clock-header">
+            <span id="headerHour" class="active" onclick="switchMode('hour')">09</span>
+            <span>:</span>
+            <span id="headerMin" onclick="switchMode('min')">00</span>
+        </div>
+
+        <div class="clock-dial" id="clockDial">
+            <div class="clock-center"></div>
+            <div class="clock-hand" id="clockHand"></div>
+        </div>
+
+        <div class="min-adjuster" id="minAdjuster" style="display: none;">
+            <button class="min-btn" onclick="adjustMinute(-1)">-1</button>
+            <span style="font-size:11px; color:#aaa;">Hassas Dakika Ayarı</span>
+            <button class="min-btn" onclick="adjustMinute(1)">+1</button>
+        </div>
+
+        <div class="clock-actions">
+            <button class="clock-btn" onclick="closeClockPicker()">İptal</button>
+            <button class="clock-btn" onclick="confirmClockPicker()">Ayarla</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    /* --- SEKME GEÇİŞİ MANTIĞI --- */
+    function switchTab(tabId, btnElement) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+        document.getElementById(tabId).classList.add('active');
+        btnElement.classList.add('active');
+    }
+
+    /* --- ARAÇ 1 MANTIĞI (SÜRE HESAPLAMA) --- */
+    let activeTarget = 'start'; 
+    let currentMode = 'hour';
+    
+    let times = {
+        start: { hour: 9, min: 0 },
+        end: { hour: 9, min: 0 }
+    };
+
+    window.onload = function() {
+        setNow('start');
+        setNow('end');
+    };
+
+    function formatTwoDigits(n) {
+        return String(n).padStart(2, '0');
+    }
+
+    function setNow(target) {
+        const now = new Date();
+        const yyyy = now.getFullYear();
+        const mm = formatTwoDigits(now.getMonth() + 1);
+        const dd = formatTwoDigits(now.getDate());
+        
+        document.getElementById(target + 'Date').value = `${yyyy}-${mm}-${dd}`;
+        times[target].hour = now.getHours();
+        times[target].min = now.getMinutes();
+        
+        updateTimeButtonDisplay(target);
+    }
+
+    function updateTimeButtonDisplay(target) {
+        document.getElementById(target + 'TimeBtn').innerText = 
+            `${formatTwoDigits(times[target].hour)}:${formatTwoDigits(times[target].min)}`;
+    }
+
+    function openClockPicker(target) {
+        activeTarget = target;
+        currentMode = 'hour';
+        document.getElementById('clockModal').style.display = 'flex';
+        renderClock();
+    }
+
+    function closeClockPicker() {
+        document.getElementById('clockModal').style.display = 'none';
+    }
+
+    function confirmClockPicker() {
+        updateTimeButtonDisplay(activeTarget);
+        closeClockPicker();
+    }
+
+    function switchMode(mode) {
+        currentMode = mode;
+        renderClock();
+    }
+
+    function adjustMinute(delta) {
+        let newMin = times[activeTarget].min + delta;
+        if (newMin > 59) newMin = 0;
+        if (newMin < 0) newMin = 59;
+        times[activeTarget].min = newMin;
+        renderClock();
+    }
+
+    function renderClock() {
+        const dial = document.getElementById('clockDial');
+        const hand = document.getElementById('clockHand');
+        
+        const oldNums = dial.querySelectorAll('.clock-number');
+        oldNums.forEach(n => n.remove());
+
+        const hHeader = document.getElementById('headerHour');
+        const mHeader = document.getElementById('headerMin');
+        const minAdj = document.getElementById('minAdjuster');
+        
+        hHeader.innerText = formatTwoDigits(times[activeTarget].hour);
+        mHeader.innerText = formatTwoDigits(times[activeTarget].min);
+
+        if (currentMode === 'hour') {
+            hHeader.classList.add('active');
+            mHeader.classList.remove('active');
+            minAdj.style.display = 'none';
+            renderHourDial();
+        } else {
+            mHeader.classList.add('active');
+            hHeader.classList.remove('active');
+            minAdj.style.display = 'flex';
+            renderMinuteDial();
+        }
+    }
+
+    function renderHourDial() {
+        const dial = document.getElementById('clockDial');
+        const hand = document.getElementById('clockHand');
+        const selectedVal = times[activeTarget].hour;
+
+        for (let i = 1; i <= 12; i++) {
+            const angle = (i * 30) - 90;
+            const rad = angle * (Math.PI / 180);
+            const r = 85;
+            const x = 115 + r * Math.cos(rad) - 15;
+            const y = 115 + r * Math.sin(rad) - 15;
+
+            const num = document.createElement('div');
+            num.className = 'clock-number';
+            num.style.left = `${x}px`;
+            num.style.top = `${y}px`;
+            num.innerText = i;
+            num.onclick = () => { times[activeTarget].hour = i; currentMode = 'min'; renderClock(); };
+            dial.appendChild(num);
+        }
+
+        for (let i = 13; i <= 24; i++) {
+            const val = i === 24 ? 0 : i;
+            const angle = ((i - 12) * 30) - 90;
+            const rad = angle * (Math.PI / 180);
+            const r = 52;
+            const x = 115 + r * Math.cos(rad) - 15;
+            const y = 115 + r * Math.sin(rad) - 15;
+
+            const num = document.createElement('div');
+            num.className = 'clock-number';
+            num.style.fontSize = '11px';
+            num.style.color = '#aaa';
+            num.style.left = `${x}px`;
+            num.style.top = `${y}px`;
+            num.innerText = formatTwoDigits(val);
+            num.onclick = () => { times[activeTarget].hour = val; currentMode = 'min'; renderClock(); };
+            dial.appendChild(num);
+        }
+
+        let angle = (selectedVal % 12) * 30;
+        let isInner = (selectedVal > 12 || selectedVal === 0);
+        let length = isInner ? 52 : 85;
+
+        hand.style.height = `${length}px`;
+        hand.style.transform = `rotate(${angle + 180}deg)`;
+    }
+
+    function renderMinuteDial() {
+        const dial = document.getElementById('clockDial');
+        const hand = document.getElementById('clockHand');
+        const selectedVal = times[activeTarget].min;
+
+        for (let i = 0; i < 60; i += 5) {
+            const angle = (i * 6) - 90;
+            const rad = angle * (Math.PI / 180);
+            const r = 85;
+            const x = 115 + r * Math.cos(rad) - 15;
+            const y = 115 + r * Math.sin(rad) - 15;
+
+            const num = document.createElement('div');
+            num.className = 'clock-number';
+            num.style.left = `${x}px`;
+            num.style.top = `${y}px`;
+            num.innerText = formatTwoDigits(i);
+            num.onclick = () => { times[activeTarget].min = i; renderClock(); };
+            dial.appendChild(num);
+        }
+
+        let angle = selectedVal * 6;
+        hand.style.height = `85px`;
+        hand.style.transform = `rotate(${angle + 180}deg)`;
+    }
+
+    function calculateDuration() {
+        const sDate = document.getElementById('startDate').value;
+        const eDate = document.getElementById('endDate').value;
+
+        if (!sDate || !eDate) {
+            alert('Lütfen her iki tarihi de seçin.');
+            return;
+        }
+
+        const start = new Date(`${sDate}T${formatTwoDigits(times.start.hour)}:${formatTwoDigits(times.start.min)}:00`);
+        const end = new Date(`${eDate}T${formatTwoDigits(times.end.hour)}:${formatTwoDigits(times.end.min)}:00`);
+
+        let diffMs = end - start;
+
+        if (diffMs < 0) {
+            alert('Bitiş zamanı başlangıçtan önce olamaz.');
+            return;
+        }
+
+        const totalMinutes = Math.floor(diffMs / (1000 * 60));
+        
+        const days = Math.floor(totalMinutes / (60 * 24));
+        const remainingHours = Math.floor((totalMinutes % (60 * 24)) / 60);
+        const minutes = totalMinutes % 60;
+
+        const totalHoursOnly = Math.floor(totalMinutes / 60);
+
+        let mainText = '';
+        if (days > 0) mainText += `${days} Gün `;
+        if (remainingHours > 0 || days > 0) mainText += `${remainingHours} Saat `;
+        mainText += `${minutes} Dakika`;
+
+        let totalTimeText = '';
+        if (totalHoursOnly > 0) {
+            totalTimeText += `${totalHoursOnly} Saat `;
+        }
+        totalTimeText += `${minutes} Dakika`;
+
+        const mealCount = totalMinutes === 0 ? 0 : Math.ceil(totalMinutes / 480);
+
+        document.getElementById('primaryResult').innerText = mainText;
+        document.getElementById('secondaryResult').innerHTML = `
+            • Toplam Süre: <b>${totalTimeText}</b><br>
+            • Toplam Dakika: <b>${totalMinutes.toLocaleString('tr-TR')} Dakika</b><br>
+            • Yemek sayısı: <b>${mealCount}</b>
+        `;
+
+        document.getElementById('resultBoxDiff').style.display = 'block';
+    }
+
+    /* --- ARAÇ 2 MANTIĞI (ÇOKLU SAAT TOPLAMA) --- */
+    let timeList = [];
+
+    document.getElementById('minutesInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') addTime();
+    });
+    document.getElementById('hoursInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') addTime();
+    });
+
+    function addTime() {
+        const hoursEl = document.getElementById('hoursInput');
+        const minutesEl = document.getElementById('minutesInput');
+
+        let hrs = parseInt(hoursEl.value) || 0;
+        let mins = parseInt(minutesEl.value) || 0;
+
+        if (hrs === 0 && mins === 0 && hoursEl.value === '' && minutesEl.value === '') {
+            alert('Lütfen en az bir saat veya dakika değeri girin.');
+            return;
+        }
+
+        timeList.push({ hours: hrs, minutes: mins });
+
+        hoursEl.value = '';
+        minutesEl.value = '';
+        hoursEl.focus();
+
+        renderList();
+    }
+
+    function removeTime(index) {
+        timeList.splice(index, 1);
+        renderList();
+    }
+
+    function clearAll() {
+        timeList = [];
+        renderList();
+        document.getElementById('resultBoxSum').style.display = 'none';
+    }
+
+    function renderList() {
+        const listEl = document.getElementById('timeList');
+        const countEl = document.getElementById('countDisplay');
+        
+        countEl.innerText = timeList.length;
+
+        if (timeList.length === 0) {
+            listEl.innerHTML = '<div class="empty-msg">Henüz süre eklenmedi.</div>';
+            return;
+        }
+
+        listEl.innerHTML = '';
+        timeList.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = 'time-item';
+            div.innerHTML = `
+                <span>${index + 1}. Süre: <b>${item.hours} Sa ${item.minutes} Dk</b></span>
+                <button class="btn-delete" onclick="removeTime(${index})">✕</button>
+            `;
+            listEl.appendChild(div);
+        });
+    }
+
+    function calculateTotal() {
+        if (timeList.length === 0) {
+            alert('Lütfen önce toplanacak süreleri ekleyin.');
+            return;
+        }
+
+        let totalMinutes = 0;
+        timeList.forEach(item => {
+            totalMinutes += (item.hours * 60) + item.minutes;
+        });
+
+        const finalHours = Math.floor(totalMinutes / 60);
+        const finalMinutes = totalMinutes % 60;
+
+        const resultDisplay = document.getElementById('resultDisplay');
+        resultDisplay.innerText = `${finalHours} saat ${finalMinutes} dakika`;
+
+        document.getElementById('resultBoxSum').style.display = 'block';
+    }
+
+    /* --- PWA: SERVICE WORKER KAYDI --- */
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+            navigator.serviceWorker.register('sw.js').catch(function(err) {
+                console.log('Service worker kaydı başarısız:', err);
+            });
+        });
+    }
+</script>
+
+</body>
+</html>
