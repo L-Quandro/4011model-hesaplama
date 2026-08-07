@@ -31,18 +31,13 @@
             touch-action: manipulation;
         }
 
-        /* iOS Tam Ekran Kesin Çözümü: Sabitleme Yöntemi */
+        /* Kesin Tam Ekran Çözümü: JS ile yönetilecek */
         html, body {
             width: 100%;
             height: 100%;
-            position: fixed; /* Ekranı kaydırmayı engeller ve sınırları zorlar */
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
             overflow: hidden;
             overscroll-behavior: none;
-            background-color: #0f2027; 
+            background-color: #0f2027;
         }
 
         body {
@@ -50,20 +45,22 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            /* Çentik ve alt çizgi (home indicator) boşluklarını içeriden verir */
-            padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+            position: fixed;
+            top: 0;
+            left: 0;
         }
 
         .card {
             background: rgba(255, 255, 255, 0.96);
-            width: 100%;
+            width: 92%;
             max-width: 420px;
+            max-height: 94vh;
             border-radius: 24px;
             box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
-            padding: 18px 16px;
+            padding: 16px;
             border: 1px solid rgba(255, 255, 255, 0.2);
             position: relative;
-            overflow: hidden;
+            overflow-y: auto;
         }
 
         .card::before {
@@ -82,7 +79,7 @@
             background: #e2e8f0;
             padding: 4px;
             border-radius: 14px;
-            margin-bottom: 18px;
+            margin-bottom: 16px;
             gap: 4px;
         }
 
@@ -121,14 +118,14 @@
             border: 1px solid #e2e8f0;
             border-radius: 14px;
             padding: 12px;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
         }
 
         .label-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         label {
@@ -194,8 +191,8 @@
         }
 
         .result-box-diff {
-            margin-top: 16px;
-            padding: 14px;
+            margin-top: 14px;
+            padding: 12px;
             background-color: #f0fdf4;
             border-radius: 14px;
             border: 1px solid #bbf7d0;
@@ -203,23 +200,23 @@
         }
 
         .result-main {
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 800;
             color: #166534;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         .result-detail {
             font-size: 13px;
             color: #374151;
-            line-height: 1.5;
+            line-height: 1.4;
         }
 
         /* --- ARAÇ 2 (ÇOKLU SAAT TOPLAMA) STİLLERİ --- */
         .input-group {
             display: flex;
             gap: 10px;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
             width: 100%;
         }
 
@@ -239,14 +236,13 @@
 
         .field input {
             width: 100%;
-            padding: 12px 8px;
+            padding: 10px 8px;
             border: 2px solid #e2e8f0;
             border-radius: 12px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             outline: none;
             text-align: center;
-            transition: all 0.2s ease;
             background: #f8fafc;
         }
 
@@ -258,7 +254,7 @@
         .btn-group {
             display: flex;
             gap: 10px;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
         }
 
         .btn-sum {
@@ -290,17 +286,17 @@
             background: #f8fafc;
             border: 1px solid #e2e8f0;
             border-radius: 12px;
-            padding: 10px;
-            max-height: 160px;
+            padding: 8px;
+            max-height: 130px;
             overflow-y: auto;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
         }
 
         .list-header {
             font-size: 11px;
             font-weight: 700;
             color: #64748b;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -321,11 +317,11 @@
             justify-content: space-between;
             align-items: center;
             background: #ffffff;
-            padding: 8px 10px;
+            padding: 6px 10px;
             border-radius: 8px;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             border: 1px solid #edf2f7;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             color: #334155;
         }
@@ -338,21 +334,21 @@
             background: #fee2e2;
             color: #991b1b;
             border: none;
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             border-radius: 50%;
             font-weight: bold;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 11px;
+            font-size: 10px;
             flex-shrink: 0;
         }
 
         .result-box-sum {
             background: linear-gradient(135deg, #7F00FF, #E100FF);
-            padding: 14px;
+            padding: 12px;
             border-radius: 14px;
             color: white;
             text-align: center;
@@ -365,12 +361,12 @@
             letter-spacing: 1px;
             text-transform: uppercase;
             opacity: 0.9;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
             font-weight: 600;
         }
 
         .result-value {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 800;
             word-break: break-word;
         }
@@ -379,13 +375,13 @@
             text-align: center;
             color: #94a3b8;
             font-size: 12px;
-            padding: 12px 0;
+            padding: 8px 0;
         }
 
         /* --- ŞEFFAF İMZA (FOOTER) STİLİ --- */
         .footer-signature {
             text-align: center;
-            margin-top: 16px;
+            margin-top: 12px;
             font-size: 11px;
             font-weight: 600;
             color: #64748b;
@@ -407,9 +403,9 @@
         .clock-modal {
             background: #2b2b2b;
             color: #fff;
-            width: 310px;
+            width: 300px;
             border-radius: 24px;
-            padding: 18px;
+            padding: 16px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
             display: flex;
             flex-direction: column;
@@ -417,9 +413,9 @@
         }
 
         .clock-header {
-            font-size: 38px;
+            font-size: 34px;
             font-weight: 700;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             color: #e0e0e0;
             display: flex;
             align-items: center;
@@ -439,11 +435,11 @@
 
         .clock-dial {
             position: relative;
-            width: 230px;
-            height: 230px;
+            width: 210px;
+            height: 210px;
             background: #383838;
             border-radius: 50%;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .clock-center {
@@ -478,10 +474,10 @@
 
         .clock-number {
             position: absolute;
-            width: 30px; height: 30px;
-            line-height: 30px;
+            width: 26px; height: 26px;
+            line-height: 26px;
             text-align: center;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             color: #e0e0e0;
             cursor: pointer;
@@ -493,16 +489,16 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .min-btn {
             background: #3a3a3a;
             color: #cddc39;
             border: 1px solid #555;
-            width: 34px; height: 34px;
+            width: 32px; height: 32px;
             border-radius: 50%;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             cursor: pointer;
             display: flex;
@@ -524,7 +520,7 @@
             font-size: 14px;
             font-weight: 700;
             cursor: pointer;
-            padding: 6px;
+            padding: 4px;
         }
     </style>
 </head>
@@ -566,7 +562,7 @@
         <button class="btn-calc-diff" onclick="calculateDuration()">Hesapla</button>
 
         <div class="result-box-diff" id="resultBoxDiff">
-            <div style="font-size: 11px; color: #15803d; font-weight:700; margin-bottom:4px;">GEÇEN SÜRE</div>
+            <div style="font-size: 11px; color: #15803d; font-weight:700; margin-bottom:2px;">GEÇEN SÜRE</div>
             <div class="result-main" id="primaryResult">-</div>
             <div class="result-detail" id="secondaryResult"></div>
         </div>
@@ -640,6 +636,20 @@
 </div>
 
 <script>
+    /* --- İOS GERÇEK YÜKSEKLİK (VIEWPORT) SABİTLEME --- */
+    function fixiOSHeight() {
+        const vh = window.innerHeight;
+        const vw = window.innerWidth;
+        document.documentElement.style.height = vh + 'px';
+        document.body.style.height = vh + 'px';
+        document.body.style.width = vw + 'px';
+    }
+    window.addEventListener('resize', fixiOSHeight);
+    window.addEventListener('orientationchange', () => {
+        setTimeout(fixiOSHeight, 200);
+    });
+    fixiOSHeight();
+
     /* --- SEKME GEÇİŞİ MANTIĞI --- */
     function switchTab(tabId, btnElement) {
         document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -659,6 +669,7 @@
     };
 
     window.onload = function() {
+        fixiOSHeight();
         setNow('start');
         setNow('end');
     };
@@ -749,9 +760,9 @@
         for (let i = 1; i <= 12; i++) {
             const angle = (i * 30) - 90;
             const rad = angle * (Math.PI / 180);
-            const r = 85;
-            const x = 115 + r * Math.cos(rad) - 15;
-            const y = 115 + r * Math.sin(rad) - 15;
+            const r = 75;
+            const x = 105 + r * Math.cos(rad) - 13;
+            const y = 105 + r * Math.sin(rad) - 13;
 
             const num = document.createElement('div');
             num.className = 'clock-number';
@@ -766,13 +777,13 @@
             const val = i === 24 ? 0 : i;
             const angle = ((i - 12) * 30) - 90;
             const rad = angle * (Math.PI / 180);
-            const r = 52;
-            const x = 115 + r * Math.cos(rad) - 15;
-            const y = 115 + r * Math.sin(rad) - 15;
+            const r = 45;
+            const x = 105 + r * Math.cos(rad) - 13;
+            const y = 105 + r * Math.sin(rad) - 13;
 
             const num = document.createElement('div');
             num.className = 'clock-number';
-            num.style.fontSize = '11px';
+            num.style.fontSize = '10px';
             num.style.color = '#aaa';
             num.style.left = `${x}px`;
             num.style.top = `${y}px`;
@@ -783,7 +794,7 @@
 
         let angle = (selectedVal % 12) * 30;
         let isInner = (selectedVal > 12 || selectedVal === 0);
-        let length = isInner ? 52 : 85;
+        let length = isInner ? 45 : 75;
 
         hand.style.height = `${length}px`;
         hand.style.transform = `rotate(${angle + 180}deg)`;
@@ -797,9 +808,9 @@
         for (let i = 0; i < 60; i += 5) {
             const angle = (i * 6) - 90;
             const rad = angle * (Math.PI / 180);
-            const r = 85;
-            const x = 115 + r * Math.cos(rad) - 15;
-            const y = 115 + r * Math.sin(rad) - 15;
+            const r = 75;
+            const x = 105 + r * Math.cos(rad) - 13;
+            const y = 105 + r * Math.sin(rad) - 13;
 
             const num = document.createElement('div');
             num.className = 'clock-number';
@@ -811,7 +822,7 @@
         }
 
         let angle = selectedVal * 6;
-        hand.style.height = `85px`;
+        hand.style.height = `75px`;
         hand.style.transform = `rotate(${angle + 180}deg)`;
     }
 
@@ -914,7 +925,7 @@
         countEl.innerText = timeList.length;
 
         if (timeList.length === 0) {
-            listEl.innerHTML = '<div class="empty-msg">Henüz süre eklenmedi.</div>';
+            listEl.innerHTML = '<div class="empty-gn">Henüz süre eklenmedi.</div>';
             return;
         }
 
